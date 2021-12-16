@@ -1,23 +1,44 @@
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
+import LoginPage from './LoginPage';
+import AuthorizedApp from './AuthorizedApp';
 import './App.css';
 
 function App() {
+  const [user, setUser] = useState(null)
+
+function onLogin(){
+  fetch('/me').then((r)=> {
+    if (r.ok){
+      r.json().then((data)=> {
+        setUser(data)
+      })
+    }
+  })
+}
+
+function handleLogout(){
+  fetch('/logout', {
+    method: "DELETE"
+  }).then(setUser(null))
+}
+
+useEffect(()=> {
+  fetch('/me').then((r)=> {
+    if(r.ok){
+      r.json().then((data)=> {
+        setUser(data)
+      })
+    }
+  })
+},[])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+       {user ? 
+     <AuthorizedApp user={user} handleLogout={handleLogout}/>
+     :
+     <LoginPage onLogin={onLogin}/>
+     }
     </div>
   );
 }
